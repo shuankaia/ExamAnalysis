@@ -1,1 +1,328 @@
-hello
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>6</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .question {
+            margin: 20px 30px;
+            padding: 15px 0;
+            border-bottom: 1px solid #A9A9A9;
+        }
+
+        .question_title {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 15px 0;
+        }
+
+        .tips {
+            font-size: 12px;
+            font-weight: normal;
+            margin-left: 15px;
+        }
+
+        .answer {
+            margin: 5px 0;
+            display: flex;
+            width: 300px;
+            justify-content: space-between;
+        }
+
+        .answer>div:last-child {
+            margin-left: 15px;
+        }
+
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn * {
+            margin: 15px 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main" id="main">
+
+    </div>
+    <div class="btn">
+        <button type="button" onclick="submit()">提交试卷</button>
+        <button type="button" onclick="reloadPage()">重做试卷</button>
+    </div>
+</body>
+<script type="text/javascript">
+    let questions = [{
+        type: "single",
+        value: 10,
+        question: "1+1等于几？（）",
+        answers: [{
+            answer: "等于1",
+            right: false
+        }, {
+            answer: "等于2",
+            right: true
+        }, {
+            answer: "等于3",
+            right: false
+        }, {
+            answer: "等于4",
+            right: false
+        }],
+    },
+    {
+        type: "single",
+        value: 10,
+        question: "2+2等于几？（）",
+        answers: [{
+            answer: "等于3",
+            right: false
+        }, {
+            answer: "等于6",
+            right: false
+        }, {
+            answer: "等于4",
+            right: true
+        }],
+    },
+    {
+        question: "以下哪些是水果？",
+        type: "multiple",
+        value: 15,
+        answers: [{
+            answer: "香蕉",
+            right: true
+        }, {
+            answer: "鸭梨",
+            right: true
+        }, {
+            answer: "苹果",
+            right: true
+        }],
+    },
+    {
+        question: "以下哪些是蔬菜？",
+        type: "multiple",
+        value: 15,
+        answers: [{
+            answer: "菠菜",
+            right: true
+        }, {
+            answer: "鸭梨",
+            right: false
+        }, {
+            answer: "土豆",
+            right: true
+        }, {
+            answer: "芹菜",
+            right: true
+        }],
+    },
+    {
+        question: "猴子是灵长类动物？",
+        type: "judge",
+        value: 5,
+        answers: true,
+    },
+    {
+        question: "鸡是胎生动物？",
+        type: "judge",
+        value: 5,
+        answers: false,
+    }
+    ]
+
+    let template = {
+        "single": function (o, index) {
+
+            let arr = o.answers.map(item => {
+                return `<div class="answer" >
+						<div>${item.answer}</div>
+						<div><input type="radio" name="${index}" right="${item.right}"/></div>
+					</div>`
+            })
+
+
+            let str =
+                `<div class="question" type="${o.type}" value="${o.value}">
+				<div class="question_title">
+					${o.question}<span class="tips">单选题${o.value}分</span>
+				</div>
+				<div class="answers">
+					${arr.join("")}
+				</div>
+			</div>
+`
+            return str;
+        },
+        "multiple": function (o, index) {
+            let arr = o.answers.map(item => {
+                return `<div class="answer">
+						<div>${item.answer}</div>
+						<div><input type="checkbox" name="${index}" right="${item.right}" /></div>
+					</div>`
+            })
+            let str =
+                `<div class="question" type="${o.type}" value="${o.value}">
+				<div class="question_title">
+					${o.question}<span class="tips">多选题${o.value}分</span>
+				</div>
+				<div class="answers">
+
+					${arr.join("")}
+				</div>
+			</div>`
+            return str;
+        },
+        "judge": function (o, index) {
+
+            let str =
+                `<div class="question" type="${o.type}" value="${o.value}">
+				<div class="question_title">
+					${o.question}<span class="tips">判断题${o.value}分</span>
+				</div>
+				<div class="answers">
+					<div class="answer">
+						<div>正确</div>
+						<div><input type="radio" name="${index}" right="${o.answers}" /></div>
+					</div>
+					<div class="answer">
+						<div>错误</div>
+						<div><input type="radio" name="${index}" right="${!o.answers}" /></div>
+					</div>
+				</div>
+			</div>`
+            return str;
+        }
+    }
+
+    function init() {
+        let arr = [];
+        for (index in questions) {
+            let templateStr = template[questions[index].type](questions[index], index)
+            arr.push(templateStr);
+        }
+
+        let main = document.getElementById("main");
+        main.innerHTML = arr.join("");
+
+    }
+    function submit(index) {
+        let elementArr = document.getElementsByClassName("question");
+        let point = 0;
+        let totalPoint = 0;
+        let element = elementArr[index];
+        let value = element.getAttribute("value");
+        totalPoint += parseInt(value);
+        let answerList = element.querySelectorAll(".answer");
+        let count = 0;
+        let type = element.getAttribute("type");
+        for (let index_a = 0; index_a < answerList.length; index_a++) {
+            let inputItem = answerList[index_a].querySelector("input");
+
+            //为正确答案上色
+            if (inputItem.getAttribute("right") == "true") {
+                answerList[index_a].style.backgroundColor = "red";
+            }
+            //判断正确答案
+            //单选
+            if (type == "single") {
+                if (inputItem.checked && inputItem.getAttribute("right") == "true") {
+                    point += parseInt(value);
+                }
+            }
+            //多选
+            if (type == "multiple") {
+                //多选有一个错误，不得分
+                if ((inputItem.checked && inputItem.getAttribute("right") == "false") || (!inputItem.checked && inputItem.getAttribute("right") == "true")) {
+                    count++
+                }
+            }
+            //判断
+            if (type == "judge") {
+                //多选有一个错误，不得分
+                if ((inputItem.checked && inputItem.getAttribute("right") == "true")) {
+                    point += parseInt(value);
+                }
+            }
+
+        }
+        if (type == "multiple") {
+            //没有错加分
+            if (count == 0) {
+                point += parseInt(value);
+            }
+        }
+
+    }
+    function submit() {
+        let elementArr = document.getElementsByClassName("question");
+        let point = 0;
+        let totalPoint = 0;
+        for (let index = 0; index < elementArr.length; index++) {
+            let element = elementArr[index];
+            let value = element.getAttribute("value");
+            totalPoint += parseInt(value);
+            let answerList = element.querySelectorAll(".answer");
+            let count = 0;
+            let type = element.getAttribute("type");
+            for (let index_a = 0; index_a < answerList.length; index_a++) {
+                let inputItem = answerList[index_a].querySelector("input");
+
+                //为正确答案上色
+                if (inputItem.getAttribute("right") == "true") {
+                    answerList[index_a].style.backgroundColor = "red";
+                }
+                //判断正确答案
+                //单选
+                if (type == "single") {
+                    if (inputItem.checked && inputItem.getAttribute("right") == "true") {
+                        point += parseInt(value);
+                    }
+                }
+                //多选
+                if (type == "multiple") {
+                    //多选有一个错误，不得分
+                    if ((inputItem.checked && inputItem.getAttribute("right") == "false") || (!inputItem.checked && inputItem.getAttribute("right") == "true")) {
+                        count++
+                    }
+                }
+                //判断
+                if (type == "judge") {
+                    //多选有一个错误，不得分
+                    if ((inputItem.checked && inputItem.getAttribute("right") == "true")) {
+                        point += parseInt(value);
+                    }
+                }
+
+            }
+            if (type == "multiple") {
+                //没有错加分
+                if (count == 0) {
+                    point += parseInt(value);
+                }
+            }
+        }
+
+        alert("总分是：" + totalPoint + ",您的得分是：" + point)
+    }
+
+    function reloadPage() {
+        location.reload();
+    }
+
+
+    init();
+</script>
+
+</html>
