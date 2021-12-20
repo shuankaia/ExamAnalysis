@@ -1,0 +1,131 @@
+﻿<Window x:Class="AnalysisExams.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AnalysisExams" xmlns:converter="clr-namespace:AnalysisExams.Converter"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <Binding Path="MainViewModel" Source="{StaticResource Locator}"/>
+    </Window.DataContext>
+    <Window.Resources>
+        <converter:BoolToColorConverter x:Key="BoolToColorConverter"/>
+    </Window.Resources>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="8*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button MinWidth="50" Content="导入" Margin="5" Command="{Binding ImportDataCommand}"/>
+            <Button MinWidth="50" Content="清空" Margin="5" Command="{Binding ClearCommand}"/>
+            <Button MinWidth="50" Content="只看单选" Margin="5" Command="{Binding OnlyRadioCommand}"/>
+            <Button MinWidth="50" Content="只看多选" Margin="5" Command="{Binding OnlyMultiSelectCommand}"/>
+            <Button MinWidth="50" Content="只看判断" Margin="5" Command="{Binding OnlyJudgeCommand}"/>
+            <Button MinWidth="50" Content="加载所有" Margin="5" Command="{Binding ReflashAllCommand}"/>
+            <TextBlock Width="30"/>
+            <Button MinWidth="50" Content="导出题库" Margin="5" Command="{Binding ExportCommand}"/>
+            <Button MinWidth="50" Content="导出题库(答案)" Margin="5" Command="{Binding ExportWithCorrectCommand}"/>
+            <Button MinWidth="50" Content="导出题库(含错误情况)" Margin="5" Command="{Binding ExportWithWrongCommand}"/>
+            <Button MinWidth="50" Content="导出试卷(问卷星)" Margin="5" Command="{Binding ExportWJXCommand}"/>
+            <Button MinWidth="50" Content="导出试卷(自定义)" Margin="5" Command="{Binding ExportCustomCommand}"/>
+            <TextBlock Width="30"/>
+            <Button MinWidth="50" Content="随机排序" Margin="5" Command="{Binding SortRandomCommand}"/>
+            <Button MinWidth="50" Content="按错误数量排序" Margin="5" Command="{Binding SortByWrongNumCommand}"/>
+            <Button MinWidth="50" Content="按序号排序" Margin="5" Command="{Binding SortByIndexCommand}"/>
+            <Button MinWidth="50" Content="当前模式只看错题" Margin="5" Command="{Binding OnlyShowWrongCommand}"/>
+        </StackPanel>
+        <DataGrid Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding Paper.Problems}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Index}" Header="题号"/>
+                <DataGridTemplateColumn Header="题目" MaxWidth="300">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Question}" FontSize="18" TextWrapping = "Wrap"></TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="答案">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataGrid ItemsSource="{Binding Answers}" HorizontalAlignment="Left" CanUserAddRows="False" HeadersVisibility="None" AutoGenerateColumns="False">
+                                <DataGrid.Columns >
+                                    <DataGridTemplateColumn Header="">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Content}" FontSize="16" HorizontalAlignment="Left" MaxWidth="200" TextWrapping = "Wrap" Foreground="{Binding Correct, Converter={StaticResource BoolToColorConverter}}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+
+
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DataGrid HeadersVisibility="None" HorizontalAlignment="Left" ItemsSource="{Binding UserAnswers}" AutoGenerateColumns="False">
+                                <DataGrid.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="LayoutTransform">
+                                            <Setter.Value>
+                                                <TransformGroup>
+                                                    <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                                                    <RotateTransform Angle="90"/>
+                                                </TransformGroup>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGrid.CellStyle>
+                                <DataGrid.LayoutTransform>
+                                    <TransformGroup>
+                                        <RotateTransform Angle="-90"/>
+                                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                                    </TransformGroup>
+                                </DataGrid.LayoutTransform>
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <DataGrid ItemsSource="{Binding Answers}" HorizontalAlignment="Left" CanUserAddRows="False" HeadersVisibility="None" AutoGenerateColumns="False">
+                                                    <DataGrid.Columns >
+                                                        <DataGridTemplateColumn Header="">
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding Content}" FontSize="16" HorizontalAlignment="Left" MaxWidth="200" TextWrapping = "Wrap" Foreground="{Binding Color}"/>
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+        </DataGrid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" MinWidth="50" Text="导入数量:" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="50" Text="{Binding Paper.ImportNum}" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" MinWidth="50" Text="实际题量:" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="50" Text="{Binding Paper.ImportValidNum}" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" MinWidth="50" Text="最大索引:" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="50" Text="{Binding Paper.MaxIndex}" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" MinWidth="50" Text="错误数量:" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="50" Text="{Binding Paper.WrongNum}" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" MinWidth="50" Text="错误实际题数:" Margin="5"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="50" Text="{Binding Paper.WrongKind}" Margin="5"/>
+
+        </StackPanel>
+    </Grid>
+</Window>
